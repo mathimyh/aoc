@@ -3,7 +3,7 @@ import numpy as np
 def main():
     
     # Part 1 
-    f = open('day9/test.txt', 'r')
+    f = open('day09/test.txt', 'r')
     
     data = f.read().strip()
     
@@ -84,7 +84,7 @@ def main():
         moved = False
         for i in range(len(empty)-indexer):
             if files[-1] <= empty[i]:
-                new_list_2.
+                x=0
         
         indexer += 1
         
