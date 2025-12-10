@@ -2,7 +2,6 @@ import numpy as np
 
 def main():
     
-    # Part 1 
     f = open('2025/day1/input.txt', 'r')
     lines = f.readlines()
     
@@ -14,6 +13,9 @@ def main():
     
     for line in lines:
         line.strip()
+        
+        # Part 1
+        
         sign = 1
         
         if line[0] == 'R':
@@ -22,6 +24,8 @@ def main():
             val = -int(line[1:])
             sign = -1
 
+
+        # Part 2
 
         for i in range(abs(val)):
             

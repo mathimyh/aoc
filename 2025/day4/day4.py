@@ -24,8 +24,6 @@ def main():
     dirs = [x+y*1j for x in range(-1,2) for y in range(-1,2)]
     
     dirs.remove(0+0j) 
-       
-       
     
     def remove_rolls(rolls):
           
