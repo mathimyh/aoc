@@ -1,9 +1,12 @@
 import numpy as np
+from sympy import Matrix, linsolve
 import re
-from itertools import combinations
-from itertools import combinations_with_replacement
-from itertools import chain
-from collections import Counter
+# from itertools import combinations
+# from itertools import combinations_with_replacement
+# from itertools import chain
+# from collections import Count
+from scipy.optimize import  linprog
+import pulp
 
 def main():
     
@@ -96,45 +99,56 @@ def main():
             else:
                 temp.append(0)
         light = temp
-        # lights.append(light.group() if light else [])
         
         rest = re.findall(r'([\d,\s]+)', line)
         
         joltage = rest.pop().split(',')
         joltage = [int(j) for j in joltage]
-        joltages.append(joltage)
         
         button = [r.split(',') for r in rest if r != ' ']
-        buttons.append(button)
         
-        press = min(joltage) # Always press more or equal to the least pressed button
-        while True:
-            found = False
-            temp = combinations_with_replacement(button, press)
+        coefficients = []
+        for i in range(len(joltage)):
+            temp = [but.count(str(i)) for but in button]
             
-            for t in temp:
-                tot_button = Counter(chain.from_iterable(t))
-                
-                new = [0 for i in range(len(joltage))]
-                
-                for key, val in tot_button.items():
-                    new[int(key)] = val
-                    
-                if new == joltage:
-                    found = True
-                    break
-                
-            if found:
-                break
-            else:
-                press += 1
-                
-            print(press)
-                
-        sum2 += press
+            coefficients.append(temp)
+            
+            
+        coefficients1 = np.array(coefficients, dtype=int)
+        joltage1 = np.array(joltage, dtype=int)   
+        
+        lower = [0 for i in range(len(coefficients[0]))]
+        upper = [5000 for i in range(len(coefficients[0]))]
+        
+        n_vars = coefficients1.shape[1]
+        
+        prob = pulp.LpProblem("MyILP", pulp.LpMinimize)
+        
+        c = np.ones(n_vars)
+
+        x = [
+            pulp.LpVariable(f"x_{i}", lowBound=lower[i], upBound=upper[i], cat="Integer")
+            for i in range(n_vars)
+        ]
+          
+        prob += pulp.lpSum(x)
+        
+        for row_idx in range(coefficients1.shape[0]):
+            prob += (
+                pulp.lpSum(coefficients1[row_idx, j] * x[j] for j in range(n_vars)) == joltage1[row_idx],
+                f"eq_{row_idx}"
+            )
+            
+        prob.solve(pulp.PULP_CBC_CMD(msg=False))
+        
+        if pulp.LpStatus[prob.status] == "Optimal":
+            sol = np.array([v.value() for v in x], dtype=int)
+            sum2 += sol.sum()  
               
     print('Task 2: ', sum2)    
             
 
 if __name__ == '__main__':
     main()
+    
+    
